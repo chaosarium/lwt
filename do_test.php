@@ -43,6 +43,7 @@ require_once( 'dbutils.inc.php' );
 require_once( 'utilities.inc.php' );
 require_once( 'php-mobile-detect/Mobile_Detect.php' );
 
+
 $detect = new Mobile_Detect;
 $mobileDisplayMode = getSettingWithDefault('set-mobile-display-mode') + 0;
 $mobile = (($mobileDisplayMode == 0 && $detect->isMobile()) || ($mobileDisplayMode == 2));
@@ -140,7 +141,7 @@ $(document).ready(init);
 	
 ?>
 
-<frameset cols="<?php echo tohtml(getSettingWithDefault('set-test-l-framewidth-percent')); ?>%,*">
+<frameset border="3" bordercolor="" cols="<?php echo tohtml(getSettingWithDefault('set-test-l-framewidth-percent')); ?>%,*">
 	<frameset rows="<?php echo tohtml(getSettingWithDefault('set-test-h-frameheight')); ?>,*">
 		<frame src="do_test_header.php?<?php echo $p; ?>" scrolling="auto" name="h" />			
 		<frame src="empty.htm" scrolling="auto" name="l" />

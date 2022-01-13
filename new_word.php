@@ -51,6 +51,7 @@ if (isset($_REQUEST['op'])) {
 
 		$text = trim(prepare_textdata($_REQUEST["WoText"]));
 		$textlc = mb_strtolower($text, 'UTF-8');
+		$wis = $textlc;
 		$translation_raw = repl_tab_nl(getreq("WoTranslation"));
 		if ( $translation_raw == '' ) $translation = '*';
 		else $translation = $translation_raw;
@@ -76,19 +77,15 @@ make_score_random_insert_update('id') . ')', "Term saved", $sqlerrdie = FALSE);
 		
 		$wid = get_last_key();
 
-		$hex = strToClassName(prepare_textdata($textlc));
-
 		saveWordTags($wid);
-		
-		$showAll = getSettingZeroOrOne('showallwords',1);
+		set_word_count();
+//		$showAll = getSettingZeroOrOne('showallwords',1);
 ?>
 
 <p><?php echo $message; ?></p>
 
 <?php
-		if (substr($message,0,5) != 'Error') {
-?>
-	
+		if (substr($message,0,5) != 'Error') {?>
 <script type="text/javascript">
 //<![CDATA[
 var context = window.parent.frames['l'].document;
@@ -97,17 +94,33 @@ var woid = <?php echo prepare_textdata_js($wid); ?>;
 var status = <?php echo prepare_textdata_js($_REQUEST["WoStatus"]); ?>;
 var trans = <?php echo prepare_textdata_js($translation . getWordTagList($wid,' ',1,0)); ?>;
 var roman = <?php echo prepare_textdata_js($_REQUEST["WoRomanization"]); ?>;
-var title = make_tooltip(<?php echo prepare_textdata_js($text); ?>,trans,roman,status);
-$('.TERM<?php echo $hex; ?>', context).removeClass('status0 hide').addClass('word' + woid + ' ' + 'status' + status).attr('data_trans',trans).attr('data_rom',roman).attr('data_status',status).attr('data_wid',woid).attr('title',title);
-$('#learnstatus', contexth).html('<?php echo texttodocount2($_REQUEST['tid']); ?>');
-window.parent.frames['l'].focus();
-window.parent.frames['l'].setTimeout('cClick()', 100);
-<?php 
-		if (! $showAll) echo refreshText($text,$_REQUEST['tid']);
-?>
+var title = window.parent.frames['l'].JQ_TOOLTIP?'':make_tooltip(<?php echo prepare_textdata_js($_REQUEST["WoText"]); ?>,trans,roman,status);
 //]]>
 </script>
-	
+<?php
+		$len = get_first_value('select WoWordCount as value from ' . $tbpref . 'words where WoID = ' . $wid);
+		if($len > 1) {
+			insertExpressions ($textlc,$_REQUEST["WoLgID"],$wid,$len,0);
+		}
+		else if($len == 1) {
+			$hex = strToClassName(prepare_textdata($textlc));
+			do_mysqli_query ('UPDATE ' . $tbpref . 'textitems2 SET Ti2WoID = ' . $wid . ' WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND LOWER(Ti2Text) = ' . convert_string_to_sqlsyntax_notrim_nonull($textlc));
+?>
+<script type="text/javascript">
+//<![CDATA[
+if($('.TERM<?php echo $hex; ?>', context).length){
+	$('.TERM<?php echo $hex; ?>', context).removeClass('status0').addClass('word' + woid + ' ' + 'status' + status).attr('data_trans',trans).attr('data_rom',roman).attr('data_status',status).attr('data_wid',woid).attr('title',title);
+	$('#learnstatus', contexth).html('<?php echo addslashes(texttodocount2($_REQUEST['tid'])); ?>');
+}
+//]]>
+</script>
+<?php
+			flush();
+		} ?>
+<script type="text/javascript">
+window.parent.frames['l'].focus();
+window.parent.frames['l'].setTimeout('cClick()', 100);
+</script>
 <?php
 		} // (substr($message,0,5) != 'Error')
 
@@ -130,6 +143,11 @@ else {  // if (! isset($_REQUEST['op']))
 	$scrdir = getScriptDirectionTag($lang);
 	
 ?>
+	<script type="text/javascript">
+	$(window).on('beforeunload',function() {
+		setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.htm';}, 0);
+	});
+	</script>
 	
 	<form name="newword" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 	<input type="hidden" name="WoLgID" id="langfield" value="<?php echo $lang; ?>" />
@@ -140,7 +158,7 @@ else {  // if (! isset($_REQUEST['op']))
 	<td class="td1"><input <?php echo $scrdir; ?> class="notempty setfocus" type="text" name="WoText" id="wordfield" value="" maxlength="250" size="35" /> <img src="icn/status-busy.png" title="Field must not be empty" alt="Field must not be empty" /></td>
 	</tr>
 	<?php print_similar_terms_tabrow(); ?>
-  <tr>
+	<tr>
 	<td class="td1 right">Translation:</td>
 	<td class="td1"><textarea class="textarea-noreturn checklength" data_maxlength="500" data_info="Translation" name="WoTranslation" cols="35" rows="3"></textarea></td>
 	</tr>

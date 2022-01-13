@@ -199,7 +199,7 @@ elseif (isset($_REQUEST['chg'])) {
 // DISPLAY
 
 else {
-
+	
 	if (substr($message,0,24) == "Error: Duplicate entry '" && 
 		substr($message,-18) == "' for key 'T2Text'") {
 		$message = substr($message,24);	
@@ -208,7 +208,7 @@ else {
 	} 	
 	echo error_message_with_hide($message,0);
 	
-	get_texttags($refresh = 1);   // refresh tags cache
+	get_texttags(1);   // refresh tags cache
 
 	$sql = 'select count(T2ID) as value from ' . $tbpref . 'tags2 where (1=1) ' . $wh_query;
 	$recno = get_first_value($sql);
@@ -222,7 +222,7 @@ else {
 	if ($currentpage > $pages) $currentpage = $pages;
 	$limit = 'LIMIT ' . (($currentpage-1) * $maxperpage) . ',' . $maxperpage;
 
-	$sorts = array('T2Text','T2Comment','T2ID desc','T2ID');
+	$sorts = array('T2Text','T2Comment','T2ID desc','T2ID asc');
 	$lsorts = count($sorts);
 	if ($currentsort < 1) $currentsort = 1;
 	if ($currentsort > $lsorts) $currentsort = $lsorts;
@@ -249,7 +249,7 @@ Tag Text or Comment:
 <th class="th1" colspan="1" nowrap="nowrap">
 <?php echo $recno; ?> Tag<?php echo ($recno==1?'':'s'); ?>
 </th><th class="th1" colspan="2" nowrap="nowrap">
-<?php makePager ($currentpage, $pages, 'edit_texttags.php', 'form1', 1); ?>
+<?php makePager ($currentpage, $pages, 'edit_texttags.php', 'form1'); ?>
 </th><th class="th1" nowrap="nowrap">
 Sort Order:
 <select name="sort" onchange="{val=document.form1.sort.options[document.form1.sort.selectedIndex].value; location.href='edit_texttags.php?page=1&amp;sort=' + val;}"><?php echo get_tagsort_selectoptions($currentsort); ?></select>
@@ -314,18 +314,16 @@ mysqli_free_result($res);
 
 ?>
 </table>
-</form>
+
 
 <?php if( $pages > 1) { ?>
-<form name="form3" action="#">
 <table class="tab1" cellspacing="0" cellpadding="5">
 <tr>
 <th class="th1" nowrap="nowrap">
 <?php echo $recno; ?> Tag<?php echo ($recno==1?'':'s'); ?>
 </th><th class="th1" nowrap="nowrap">
-<?php makePager ($currentpage, $pages, 'edit_texttags.php', 'form3', 2); ?>
-</th></tr></table>
-</form>
+<?php makePager ($currentpage, $pages, 'edit_texttags.php', 'form2'); ?>
+</th></tr></table></form>
 <?php } ?>
 
 <?php

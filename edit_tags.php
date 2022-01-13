@@ -205,7 +205,7 @@ else {
 	} 	
 	echo error_message_with_hide($message,0);
 	
-	get_tags($refresh = 1);   // refresh tags cache
+	get_tags(1);   // refresh tags cache
 
 	$sql = 'select count(TgID) as value from ' . $tbpref . 'tags where (1=1) ' . $wh_query;
 	$recno = get_first_value($sql);
@@ -219,7 +219,7 @@ else {
 	if ($currentpage > $pages) $currentpage = $pages;
 	$limit = 'LIMIT ' . (($currentpage-1) * $maxperpage) . ',' . $maxperpage;
 
-	$sorts = array('TgText','TgComment','TgID desc','TgID');
+	$sorts = array('TgText','TgComment','TgID desc','TgID asc');
 	$lsorts = count($sorts);
 	if ($currentsort < 1) $currentsort = 1;
 	if ($currentsort > $lsorts) $currentsort = $lsorts;
@@ -246,7 +246,7 @@ Tag Text or Comment:
 <th class="th1" colspan="1" nowrap="nowrap">
 <?php echo $recno; ?> Tag<?php echo ($recno==1?'':'s'); ?>
 </th><th class="th1" colspan="2" nowrap="nowrap">
-<?php makePager ($currentpage, $pages, 'edit_tags.php', 'form1', 1); ?>
+<?php makePager ($currentpage, $pages, 'edit_tags.php', 'form1'); ?>
 </th><th class="th1" nowrap="nowrap">
 Sort Order:
 <select name="sort" onchange="{val=document.form1.sort.options[document.form1.sort.selectedIndex].value; location.href='edit_tags.php?page=1&amp;sort=' + val;}"><?php echo get_tagsort_selectoptions($currentsort); ?></select>
@@ -308,18 +308,16 @@ mysqli_free_result($res);
 
 ?>
 </table>
-</form>
+
 
 <?php if( $pages > 1) { ?>
-<form name="form3" action="#">
 <table class="tab1" cellspacing="0" cellpadding="5">
 <tr>
 <th class="th1" nowrap="nowrap">
 <?php echo $recno; ?> Tag<?php echo ($recno==1?'':'s'); ?>
 </th><th class="th1" nowrap="nowrap">
-<?php makePager ($currentpage, $pages, 'edit_tags.php', 'form3', 2); ?>
-</th></tr></table>
-</form>
+<?php makePager ($currentpage, $pages, 'edit_tags.php', 'form2'); ?>
+</th></tr></table></form>
 <?php } ?>
 
 <?php

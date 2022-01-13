@@ -127,7 +127,7 @@ if(window.parent.frames['l'].location.href.indexOf('do_test_table') !== -1) {
 	var trans = <?php echo prepare_textdata_js($translation . getWordTagList($wid,' ',1,0)); ?>;
 	var roman = <?php echo prepare_textdata_js($_REQUEST["WoRomanization"]); ?>;
 	$('.word' + woid, context).attr('data_text',wotext).attr('data_trans',trans).attr('data_rom',roman).attr('data_status',status);
-}
+}  
 window.parent.frames['l'].focus();
 window.parent.frames['l'].setTimeout('cClick()', 100);
 //]]>
@@ -168,6 +168,11 @@ else {  // if (! isset($_REQUEST['op']))
 
 ?>
 <script type="text/javascript" src="js/unloadformcheck.js" charset="utf-8"></script>
+<script type="text/javascript">
+	$(window).on('beforeunload',function() {
+		setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.htm';}, 0);
+	});
+</script>
 	
 <form name="editword" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <input type="hidden" name="WoLgID" id="langfield" value="<?php echo $lang; ?>" />
@@ -183,7 +188,7 @@ else {  // if (! isset($_REQUEST['op']))
 <tr>
 <td class="td1 right">Translation:</td>
 <td class="td1"><textarea name="WoTranslation" class="setfocus textarea-noreturn checklength" data_maxlength="500" data_info="Translation" cols="35" rows="3"><?php echo tohtml($transl); ?></textarea></td>
-</tr>
+></tr>
 <tr>
 <td class="td1 right">Tags:</td>
 <td class="td1">
@@ -198,6 +203,7 @@ else {  // if (! isset($_REQUEST['op']))
 <td class="td1 right">Sentence<br />Term in {...}:</td>
 <td class="td1"><textarea <?php echo $scrdir; ?> name="WoSentence" class="textarea-noreturn checklength" data_maxlength="1000" data_info="Sentence" cols="35" rows="3"><?php echo tohtml($sentence); ?></textarea></td>
 </tr>
+<?php print_similar_terms_tabrow(); ?>
 <tr>
 <td class="td1 right">Status:</td>
 <td class="td1">
@@ -212,7 +218,7 @@ else {  // if (! isset($_REQUEST['op']))
 </tr>
 </table>
 </form>
-<div id="exsent"><span class="click" onclick="do_ajax_show_sentences(<?php echo $lang; ?>, <?php echo prepare_textdata_js($termlc) . ', ' . prepare_textdata_js("document.forms['editword'].WoSentence"); ?>);"><img src="icn/sticky-notes-stack.png" title="Show Sentences" alt="Show Sentences" /> Show Sentences</span></div>	
+<div id="exsent"><span class="click" onclick="do_ajax_show_sentences(<?php echo $lang; ?>, <?php echo prepare_textdata_js($termlc) . ', ' . prepare_textdata_js("document.forms['editword'].WoSentence") . ', ' . $wid; ?>);"><img src="icn/sticky-notes-stack.png" title="Show Sentences" alt="Show Sentences" /> Show Sentences</span></div>	
 <?php
 } // if (! isset($_REQUEST['op']))
 

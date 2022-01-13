@@ -54,7 +54,7 @@ elseif (isset($_REQUEST['lang'])) {
 }
 
 elseif (isset($_REQUEST['text'])) {
-	$testsql = ' ' . $tbpref . 'words, ' . $tbpref . 'textitems where TiLgID = WoLgID and TiTextLC = WoTextLC and TiTxID = ' . $_REQUEST['text'] . ' ';
+	$testsql = ' ' . $tbpref . 'words, ' . $tbpref . 'textitems2 where Ti2LgID = WoLgID and Ti2WoID = WoID and Ti2TxID = ' . $_REQUEST['text'] . ' ';
 }
 
 else my_die("do_test_test.php called with wrong parameters");
@@ -158,7 +158,7 @@ if ($count <= 0) {
 			while ( $pass < 3 ) {
 				$pass++;
 				if ($debug) echo "DEBUG search sent: pass: $pass <br />";
-				$sql = 'SELECT DISTINCT SeID FROM ' . $tbpref . 'sentences, ' . $tbpref . 'textitems WHERE TiTextLC = ' . convert_string_to_sqlsyntax($wordlc) . $sentexcl . ' AND SeID = TiSeID AND SeLgID = ' . $lang . ' order by rand() limit 1';
+				$sql = 'SELECT DISTINCT SeID FROM ' . $tbpref . 'sentences, ' . $tbpref . 'textitems2 WHERE Ti2WoID = ' . $wid . $sentexcl . ' AND SeID = Ti2SeID AND SeLgID = ' . $lang . ' order by rand() limit 1';
 				$res = do_mysqli_query($sql);
 				$record = mysqli_fetch_assoc($res);
 				if ( $record ) {  // random sent found
@@ -194,7 +194,6 @@ if ($count <= 0) {
 		}
 		
 		$cleansent = trim(str_replace("{", '', str_replace("}", '', $sent)));
-		// echo $cleansent;
 		
 		echo '<p ' . ($rtlScript ? 'dir="rtl"' : '') . ' style="' . ($removeSpaces ? 'word-break:break-all;' : '') . 'font-size:' . $textsize . '%;line-height: 1.4; text-align:center; margin-bottom:300px;">';
 		$l = mb_strlen($sent,'utf-8');
@@ -241,6 +240,8 @@ if ($count <= 0) {
 WBLINK1 = '<?php echo $wb1; ?>';
 WBLINK2 = '<?php echo $wb2; ?>';
 WBLINK3 = '<?php echo $wb3; ?>';
+LANG = WBLINK3.replace(/.*[?&]sl=([a-zA-Z\-]*)(&.*)*$/, "$1");
+if(LANG && LANG!=WBLINK3) $("html").attr('lang',LANG);
 SOLUTION = <?php echo prepare_textdata_js ( $testtype==1 ? ( $nosent ? ($trans) : (' [' . $trans . '] ')) : $save ); ?>;
 OPENED = 0;
 WID = <?php echo $wid; ?>;
@@ -275,7 +276,7 @@ $b_correct = ($l_correct == 0) ? 'borderr' : 'borderl borderr';
 <img src="icn/clock.png" title="Elapsed Time" alt="Elapsed Time" />
 <span id="timer" title="Elapsed Time"></span>
 &nbsp; &nbsp; &nbsp; 
-<img class="<?php echo $b_notyet; ?>" src="icn/test_notyet.png" title="Not yet tested" alt="Not yet tested" height="10" width="<?php echo $l_notyet; ?>" /><img class="<?php echo $b_wrong; ?>" src="icn/test_wrong.png" title="Wrong" alt="Wrong" height="10" width="<?php echo $l_wrong; ?>" /><img class="<?php echo $b_correct; ?>" src="icn/test_correct.png" title="Correct" alt="Correct" height="10" width="<?php echo $l_correct; ?>" />
+<img class="<?php echo $b_notyet; ?>" src="<?php print_file_path('icn/test_notyet.png');?>" title="Not yet tested" alt="Not yet tested" height="10" width="<?php echo $l_notyet; ?>" /><img class="<?php echo $b_wrong; ?>" src="<?php print_file_path('icn/test_wrong.png');?>" title="Wrong" alt="Wrong" height="10" width="<?php echo $l_wrong; ?>" /><img class="<?php echo $b_correct; ?>" src="<?php print_file_path('icn/test_correct.png');?>" title="Correct" alt="Correct" height="10" width="<?php echo $l_correct; ?>" />
 &nbsp; &nbsp; &nbsp; 
 <span title="Total number of tests"><?php echo $totaltests; ?></span>
 = 
@@ -306,6 +307,12 @@ if ($waittime <= 0 ) {
 		'timer', <?php echo ($count ? 0 : 1); ?>);
 });
 //]]>
+</script>
+
+<?php include 'tts.php';?>
+
+<script>
+	applyTTS()
 </script>
 
 <?php
