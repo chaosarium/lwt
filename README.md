@@ -1,7 +1,5 @@
 LWT with personal modifications
 
-Cloned to https://github.com/chaosarium/lwt
-
 The project is going again at https://github.com/HugoFara/lwt
 
 This is @chaosarium's fork of [@PirtleShell's fork](https://github.com/pirtleshell/lwt) of [@andreask7's fork](https://github.com/andreask7/lwt). Its altered database structure makes it quicker, and it has many features not found in the original. It also looks more likely to develop communally, whereas the original is fairly stagnant and not open for contributions.
