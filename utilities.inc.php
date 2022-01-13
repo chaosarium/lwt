@@ -3103,6 +3103,10 @@ function get_setting_data() {
 		array("dft" => '1', "num" => 0),
 		'set-tts' => 
 		array("dft" => '1', "num" => 0),
+		'set-ttsjs-rate' => 
+		array("dft" => '1', "num" => 0),
+		'set-ttsjs-lang' => 
+		array("dft" => 'en-AU', "num" => 0),
 		'set-term-sentence-count' => 
 		array("dft" => '1', "num" => 0),
 		'set-archivedtexts-per-page' => 

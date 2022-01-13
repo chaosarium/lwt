@@ -249,6 +249,16 @@ while ($record = mysqli_fetch_assoc($res)) {  // MAIN LOOP
 mysqli_free_result($res);
 echo '</span><span id="totalcharcount" class="hide">' . $currcharcount . '</span></p><p style="font-size:' . $textsize . '%;line-height: 1.4; margin-bottom: 300px;">&nbsp;</p></div>';
 
+?>
+
+<?php include 'tts.php';?>
+
+<script>
+	applyTTS()
+</script>
+
+<?php
+
 pageend();
 
 ?>

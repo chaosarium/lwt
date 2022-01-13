@@ -309,6 +309,12 @@ if ($waittime <= 0 ) {
 //]]>
 </script>
 
+<?php include 'tts.php';?>
+
+<script>
+	applyTTS()
+</script>
+
 <?php
 
 pageend();
