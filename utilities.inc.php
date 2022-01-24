@@ -2658,10 +2658,10 @@ function anki_export($sql) {
 		$lpar = ($rtlScript ? ']' : '[');
 		$rpar = ($rtlScript ? '[' : ']');
 		$sent = tohtml(repl_tab_nl($record["WoSentence"]));
-		$sent1 = str_replace("{", '<span style="font-weight:600; color:#0000ff;">' . $lpar, str_replace("}", $rpar . '</span>', 
+		$sent1 = str_replace("{", '<span class="LWTCloze">' . $lpar, str_replace("}", $rpar . '</span>', 
 			mask_term_in_sentence($sent,$termchar)
 		));
-		$sent2 = str_replace("{", '<span style="font-weight:600; color:#0000ff;">', str_replace("}", '</span>', $sent));
+		$sent2 = str_replace("{", '<span class="LWTCloze">', str_replace("}", '</span>', $sent));
 		$x .= $span1 . tohtml(repl_tab_nl($record["WoText"])) . $span2 . "\t" . 
 		tohtml(repl_tab_nl($record["WoTranslation"])) . "\t" . 
 		tohtml(repl_tab_nl($record["WoRomanization"])) . "\t" . 
