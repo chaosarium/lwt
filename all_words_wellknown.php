@@ -1,52 +1,32 @@
 <?php
 
-/**************************************************************
-"Learning with Texts" (LWT) is free and unencumbered software 
-released into the PUBLIC DOMAIN.
+/**
+ * \file
+ * \brief Setting all unknown words to Well Known (99)
+ * 
+ * Call: all_words_wellknown.php?text=[textid]
+ * 
+ * @package Lwt
+ * @author  LWT Project <lwt-project@hotmail.com>
+ * @license Unlicense <http://unlicense.org/>
+ * @link    https://hugofara.github.io/lwt/docs/html/all__words__wellknown_8php.html
+ * @since   1.0.3
+ */
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a
-compiled binary, for any purpose, commercial or non-commercial,
-and by any means.
+require_once 'inc/session_utility.php';
 
-In jurisdictions that recognize copyright laws, the author or
-authors of this software dedicate any and all copyright
-interest in the software to the public domain. We make this
-dedication for the benefit of the public at large and to the 
-detriment of our heirs and successors. We intend this 
-dedication to be an overt act of relinquishment in perpetuity
-of all present and future rights to this software under
-copyright law.
+$status = $_REQUEST['stat'];
+$langid = get_first_value(
+    "SELECT TxLgID AS value 
+    FROM " . $tbpref . "texts 
+    WHERE TxID = " . $_REQUEST['text']
+);
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-THE SOFTWARE.
-
-For more information, please refer to [http://unlicense.org/].
-***************************************************************/
-
-/**************************************************************
-Call: all_words_wellknown.php?text=[textid]
-Setting all unknown words to Well Known (99)
-***************************************************************/
-
-require_once( 'settings.inc.php' );
-require_once( 'connect.inc.php' );
-require_once( 'dbutils.inc.php' );
-require_once( 'utilities.inc.php' );
-
-$status=$_REQUEST['stat'];
-$langid = get_first_value("select TxLgID as value from " . $tbpref . "texts where TxID = " . $_REQUEST['text']);
-
-if($status==98)
-	pagestart("Setting all blue words to Ignore",false);
-if($status==99)
-	pagestart("Setting all blue words to Well-known",false);
+if ($status == 98) {
+    pagestart("Setting all blue words to Ignore", false); 
+} else if ($status == 99) {
+    pagestart("Setting all blue words to Well-known", false); 
+}
 
 $sql = 'select Ti2Text, lower(Ti2Text) as  WoTextLC from (' . $tbpref . 'textitems2 left join ' . $tbpref . 'words on (Ti2WoID = WoID) and (Ti2LgID = WoLgID)) where Ti2WoID = 0 and Ti2WordCount = 1 and Ti2TxID = ' . $_REQUEST['text'] . ' group by lower(Ti2Text) order by Ti2Order';
 $res = do_mysqli_query($sql);
@@ -75,20 +55,20 @@ $sqltext = "UPDATE  " . $tbpref . "textitems2 SET Ti2WoID  = CASE lower(Ti2Text)
 $sqltext .= implode(' ', $sqlarr) . ' END where Ti2WordCount=1 and Ti2WoID  = 0 and Ti2LgID=' . $langid;
 do_mysqli_query( $sqltext);
 
-if($status==98)
-	echo "<p>OK, you ignore all " . $count . " word(s)!</p>";
-if($status==99)
-	echo "<p>OK, you know all " . $count . " word(s) well!</p>";
+if ($status == 98) {
+    echo "<p>OK, you ignore all " . $count . " word(s)!</p>"; 
+} else if($status == 99) {
+    echo "<p>OK, you know all " . $count . " word(s) well!</p>"; 
+}
 
 ?>
 <script type="text/javascript">
-//<![CDATA[
-var context = window.parent.frames['l'].document;
-var contexth = window.parent.frames['h'].document;
-<?php echo $javascript; ?> 
-$('#learnstatus', contexth).html('<?php echo addslashes(texttodocount2($_REQUEST['text'])); ?>');
-window.parent.frames['l'].setTimeout('cClick()', 1000);
-//]]>
+    //<![CDATA[
+    var contexth = window.parent.frames['h'].document;
+    <?php echo $javascript; ?> 
+    $('#learnstatus', contexth).html('<?php echo addslashes(texttodocount2($_REQUEST['text'])); ?>');
+    window.parent.frames['l'].setTimeout('cClick()', 1000);
+    //]]>
 </script>
 <?php
 

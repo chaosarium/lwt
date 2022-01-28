@@ -1,140 +1,108 @@
 <?php
 
 /**************************************************************
-"Learning with Texts" (LWT) is free and unencumbered software 
-released into the PUBLIC DOMAIN.
-
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a
-compiled binary, for any purpose, commercial or non-commercial,
-and by any means.
-
-In jurisdictions that recognize copyright laws, the author or
-authors of this software dedicate any and all copyright
-interest in the software to the public domain. We make this
-dedication for the benefit of the public at large and to the 
-detriment of our heirs and successors. We intend this 
-dedication to be an overt act of relinquishment in perpetuity
-of all present and future rights to this software under
-copyright law.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-THE SOFTWARE.
-
-For more information, please refer to [http://unlicense.org/].
- ***************************************************************/
-
-/**************************************************************
 Call: settings.php?....
       ... op=Save ... do save 
       ... op=Reset ... do reset to defaults 
 Preferences / Settings 
  ***************************************************************/
 
-require_once('settings.inc.php');
-require_once('connect.inc.php');
-require_once('dbutils.inc.php');
-require_once('utilities.inc.php');
+require_once 'inc/session_utility.php';
 if (isset($_REQUEST['op'])) {
 
-	if ($_REQUEST['op'] == 'Save') {
+    if ($_REQUEST['op'] == 'Save') {
 
-		saveSetting(
-			'set-theme-dir',
-			$_REQUEST['set-theme-dir']
-		);
-	} else {
-		$dummy = runsql("delete from " . $tbpref . "settings where StKey like 'set-%'", '');
-	}
+        saveSetting(
+            'set-theme-dir',
+            $_REQUEST['set-theme-dir']
+        );
+    }
+    else {    
+        runsql("delete from " . $tbpref . "settings where StKey like 'set-%'", '');
+    }
 }
 pagestart('Settings/Preferences', true);
 $message = '';
 
 if (isset($_REQUEST['op'])) {
 
-	if ($_REQUEST['op'] == 'Save') {
+    if ($_REQUEST['op'] == 'Save') {
 
-		saveSetting(
-			'set-text-h-frameheight-no-audio',
-			$_REQUEST['set-text-h-frameheight-no-audio']
-		);
+        saveSetting(
+            'set-text-h-frameheight-no-audio',
+            $_REQUEST['set-text-h-frameheight-no-audio']
+        );
+    
+        saveSetting(
+            'set-text-h-frameheight-with-audio',
+            $_REQUEST['set-text-h-frameheight-with-audio']
+        );
+    
+        saveSetting(
+            'set-text-l-framewidth-percent',
+            $_REQUEST['set-text-l-framewidth-percent']
+        );
+    
+        saveSetting(
+            'set-text-r-frameheight-percent',
+            $_REQUEST['set-text-r-frameheight-percent']
+        );
+    
+        saveSetting(
+            'set-test-h-frameheight',
+            $_REQUEST['set-test-h-frameheight']
+        );
+        
+        saveSetting(
+            'set-test-l-framewidth-percent',
+            $_REQUEST['set-test-l-framewidth-percent']
+        );
+    
+        saveSetting(
+            'set-test-r-frameheight-percent',
+            $_REQUEST['set-test-r-frameheight-percent']
+        );
+    
+        saveSetting(
+            'set-words-to-do-buttons',
+            $_REQUEST['set-words-to-do-buttons']
+        );
+    
+        saveSetting(
+            'set-tooltip-mode',
+            $_REQUEST['set-tooltip-mode']
+        );
+    
+        saveSetting(
+            'set-ggl-translation-per-page',
+            $_REQUEST['set-ggl-translation-per-page']
+        );
+    
+        saveSetting(
+            'set-test-main-frame-waiting-time',
+            $_REQUEST['set-test-main-frame-waiting-time']
+        );
+    
+        saveSetting(
+            'set-test-edit-frame-waiting-time',
+            $_REQUEST['set-test-edit-frame-waiting-time']
+        );
 
-		saveSetting(
-			'set-text-h-frameheight-with-audio',
-			$_REQUEST['set-text-h-frameheight-with-audio']
-		);
-
-		saveSetting(
-			'set-text-l-framewidth-percent',
-			$_REQUEST['set-text-l-framewidth-percent']
-		);
-
-		saveSetting(
-			'set-text-r-frameheight-percent',
-			$_REQUEST['set-text-r-frameheight-percent']
-		);
-
-		saveSetting(
-			'set-test-h-frameheight',
-			$_REQUEST['set-test-h-frameheight']
-		);
-
-		saveSetting(
-			'set-test-l-framewidth-percent',
-			$_REQUEST['set-test-l-framewidth-percent']
-		);
-
-		saveSetting(
-			'set-test-r-frameheight-percent',
-			$_REQUEST['set-test-r-frameheight-percent']
-		);
-
-		saveSetting(
-			'set-words-to-do-buttons',
-			$_REQUEST['set-words-to-do-buttons']
-		);
-
-		saveSetting(
-			'set-tooltip-mode',
-			$_REQUEST['set-tooltip-mode']
-		);
-
-		saveSetting(
-			'set-ggl-translation-per-page',
-			$_REQUEST['set-ggl-translation-per-page']
-		);
-
-		saveSetting(
-			'set-test-main-frame-waiting-time',
-			$_REQUEST['set-test-main-frame-waiting-time']
-		);
-
-		saveSetting(
-			'set-test-edit-frame-waiting-time',
-			$_REQUEST['set-test-edit-frame-waiting-time']
-		);
-
-		saveSetting(
-			'set-test-sentence-count',
-			$_REQUEST['set-test-sentence-count']
-		);
-
-		saveSetting(
-			'set-term-sentence-count',
-			$_REQUEST['set-term-sentence-count']
-		);
-
-		saveSetting(
-			'set-tts',
-			$_REQUEST['set-tts']
-		);
-
+        saveSetting(
+            'set-test-sentence-count',
+            $_REQUEST['set-test-sentence-count']
+        );
+    
+        saveSetting(
+            'set-term-sentence-count',
+            $_REQUEST['set-term-sentence-count']
+        );
+    
+        saveSetting(
+            'set-tts',
+            $_REQUEST['set-tts']
+        );
+		
 		saveSetting(
 			'set-ttsjs-rate',
 			$_REQUEST['set-ttsjs-rate']
@@ -145,91 +113,95 @@ if (isset($_REQUEST['op'])) {
 			$_REQUEST['set-ttsjs-lang']
 		);
 
-		saveSetting(
-			'set-archivedtexts-per-page',
-			$_REQUEST['set-archivedtexts-per-page']
-		);
+    
+        saveSetting(
+            'set-archivedtexts-per-page',
+            $_REQUEST['set-archivedtexts-per-page']
+        );
+    
+        saveSetting(
+            'set-texts-per-page',
+            $_REQUEST['set-texts-per-page']
+        );
+    
+        saveSetting(
+            'set-terms-per-page',
+            $_REQUEST['set-terms-per-page']
+        );
+    
+        saveSetting(
+            'set-regex-mode',
+            $_REQUEST['set-regex-mode']
+        );
+    
+        saveSetting(
+            'set-tags-per-page',
+            $_REQUEST['set-tags-per-page']
+        );
+    
+        saveSetting(
+            'set-articles-per-page',
+            $_REQUEST['set-articles-per-page']
+        );
+    
+        saveSetting(
+            'set-feeds-per-page',
+            $_REQUEST['set-feeds-per-page']
+        );
+    
+        saveSetting(
+            'set-max-articles-with-text',
+            $_REQUEST['set-max-articles-with-text']
+        );
+    
+        saveSetting(
+            'set-max-articles-without-text',
+            $_REQUEST['set-max-articles-without-text']
+        );
+    
+        saveSetting(
+            'set-max-texts-per-feed',
+            $_REQUEST['set-max-texts-per-feed']
+        );
+    
+        saveSetting(
+            'set-text-visit-statuses-via-key',
+            $_REQUEST['set-text-visit-statuses-via-key']
+        );
+    
+        saveSetting(
+            'set-display-text-frame-term-translation',
+            $_REQUEST['set-display-text-frame-term-translation']
+        );
 
-		saveSetting(
-			'set-texts-per-page',
-			$_REQUEST['set-texts-per-page']
-		);
+        saveSetting(
+            'set-text-frame-annotation-position',
+            $_REQUEST['set-text-frame-annotation-position']
+        );
+        
+        saveSetting(
+            'set-term-translation-delimiters',
+            $_REQUEST['set-term-translation-delimiters']
+        );
+        
+        saveSetting(
+            'set-mobile-display-mode',
+            $_REQUEST['set-mobile-display-mode']
+        );
 
-		saveSetting(
-			'set-terms-per-page',
-			$_REQUEST['set-terms-per-page']
-		);
+        saveSetting(
+            'set-similar-terms-count',
+            $_REQUEST['set-similar-terms-count']
+        );
+    
+        $message = 'Settings saved';
+    
+    } else {
+        
+        $message = 'All Settings reset to default values';
+    
+    }
 
-		saveSetting(
-			'set-regex-mode',
-			$_REQUEST['set-regex-mode']
-		);
-
-		saveSetting(
-			'set-tags-per-page',
-			$_REQUEST['set-tags-per-page']
-		);
-
-		saveSetting(
-			'set-articles-per-page',
-			$_REQUEST['set-articles-per-page']
-		);
-
-		saveSetting(
-			'set-feeds-per-page',
-			$_REQUEST['set-feeds-per-page']
-		);
-
-		saveSetting(
-			'set-max-articles-with-text',
-			$_REQUEST['set-max-articles-with-text']
-		);
-
-		saveSetting(
-			'set-max-articles-without-text',
-			$_REQUEST['set-max-articles-without-text']
-		);
-
-		saveSetting(
-			'set-max-texts-per-feed',
-			$_REQUEST['set-max-texts-per-feed']
-		);
-
-		saveSetting(
-			'set-text-visit-statuses-via-key',
-			$_REQUEST['set-text-visit-statuses-via-key']
-		);
-
-		saveSetting(
-			'set-display-text-frame-term-translation',
-			$_REQUEST['set-display-text-frame-term-translation']
-		);
-
-		saveSetting(
-			'set-text-frame-annotation-position',
-			$_REQUEST['set-text-frame-annotation-position']
-		);
-
-		saveSetting(
-			'set-term-translation-delimiters',
-			$_REQUEST['set-term-translation-delimiters']
-		);
-
-		saveSetting(
-			'set-mobile-display-mode',
-			$_REQUEST['set-mobile-display-mode']
-		);
-
-		saveSetting(
-			'set-similar-terms-count',
-			$_REQUEST['set-similar-terms-count']
-		);
-
-		$message = 'Settings saved';
-	} else {
-
-		$message = 'All Settings reset to default values';
-	}
 }
 
 echo error_message_with_hide($message, 1);
