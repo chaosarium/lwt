@@ -18,7 +18,7 @@
 
 require_once 'inc/session_utility.php';
 require_once 'inc/langdefs.php';
-
+require_once 'tts.php';
 
 /**
  * Set sql request for the word test.
@@ -562,6 +562,8 @@ function do_test_test_javascript($count)
             'timer', <?php echo ($count ? 0 : 1); ?>
         );
     });
+
+    $(document).ready(apllyTTS);
 //]]>
 </script>
     <?php
@@ -602,10 +604,6 @@ function do_test_test_content()
     //pageend();
 
 }
-
-include 'tts.php';
-
-echo '<script>applyTTS()</script>';
 
 if (isset($_REQUEST['selection']) || isset($_REQUEST['lang']) || isset($_REQUEST['text'])) {
     //do_test_test_content();

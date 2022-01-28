@@ -248,7 +248,6 @@ else {  // if (! isset($_REQUEST['op']))
     
     if ($wid == '') {    
         $sql = 'select Ti2Text, Ti2LgID from ' . $tbpref . 'textitems2 where Ti2TxID = ' . $_REQUEST['tid'] . ' and Ti2WordCount = 1 and Ti2Order = ' . $_REQUEST['ord'];
-        //$sql = 'select TiText, TiLgID from ' . $tbpref . 'textitems where TiTxID = ' . $_REQUEST['tid'] . ' and TiWordCount = 1 and TiOrder = ' . $_REQUEST['ord'];
         $res = do_mysqli_query($sql);
         $record = mysqli_fetch_assoc($res);
         if ($record) {

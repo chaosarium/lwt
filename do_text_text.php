@@ -11,6 +11,7 @@
  */
 
 require_once 'inc/session_utility.php';
+require_once 'tts.php';
 
 /**
  * Get the record for this text in the database.
@@ -369,6 +370,7 @@ function do_text_javascript($var_array): void
 
     $(document).ready(prepareTextInteractions);
     $(document).ready(goToLastPosition);
+    $(document).ready(apllyTTS);
     $(window).on('beforeunload', saveCurrentPosition);
     //]]>
 </script>
