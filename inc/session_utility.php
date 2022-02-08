@@ -1385,23 +1385,29 @@ function echo_lwt_logo(): void
     if ($pref == '') { 
         $pref = 'Default Table Set'; 
     }
-    echo '<img class="lwtlogo" src="';
-    print_file_path('img/lwt_icon.png'); 
-    echo '" title="LWT - Current Table Set: ' . tohtml($pref) . 
+    echo '<img class="lwtlogo" src="' . 
+    get_file_path('img/lwt_icon.png') . 
+    '" title="LWT - Current Table Set: ' . tohtml($pref) . 
     '" alt="LWT - Current Table Set: ' . tohtml($pref) . '" />';
 }
 
 // -------------------------------------------------------------
 
 /**
- * @return (false|string)[]
+ * Return all different database prefixes that are in use.
+ * 
+ * @return (false|string)[] A list of prefixes.
  *
  * @psalm-return list<false|string>
  */
 function getprefixes(): array 
 {
     $prefix = array();
-    $res = do_mysqli_query(str_replace('_', "\\_", "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%_settings')));
+    $res = do_mysqli_query(str_replace(
+        '_', 
+        "\\_", 
+        "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%_settings'))
+    );
     while ($row = mysqli_fetch_row($res)) {
         $prefix[] = substr($row[0], 0, -9); 
     }
@@ -1597,7 +1603,7 @@ function print_file_path($filename): void
  * 
  * @param string $filename Filename
  * 
- * @return string string|string[]|null File path if it exists, otherwise the filename
+ * @return string File path if it exists, otherwise the filename
  */
 function get_file_path($filename)
 {
@@ -3275,13 +3281,11 @@ function areUnknownWordsInSentence($sentno): bool
 {
     global $tbpref;
     $x = get_first_value(
-        "SELECT distinct Ti2Text AS value 
+        "SELECT DISTINCT Ti2Text AS value 
         FROM " . $tbpref . "textitems2 
         WHERE Ti2SeID = " . $sentno . " AND Ti2WordCount = 1 AND Ti2WoID = 0 
         LIMIT 1"
     );
-    //    $x = get_first_value("SELECT distinct ifnull(WoTextLC,'') as value FROM (" . $tbpref . "textitems left join " . $tbpref . "words on (TiTextLC = WoTextLC) and (TiLgID = WoLgID)) where TiSeID = " . $sentno . " AND TiWordCount = 1 AND TiIsNotWord = 0 order by WoTextLC asc limit 1");
-    // echo $sentno . '/' . isset($x) . '/' . $x . '/';
     if (isset($x) && $x == '') {
         return true;
     }
@@ -3698,15 +3702,17 @@ function restore_file($handle, $title): string
         check_update_db($debug, $tbpref, $dbname);
         reparse_all_texts();
         optimizedb();
-        get_tags($refresh = 1);
-        get_texttags($refresh = 1);
+        get_tags(1);
+        get_texttags(1);
         $message = "Success: " . $title . " restored - " .
-        $lines . " queries - " . $ok . " successful (" . $drops . "/" . $creates . " tables dropped/created, " . $inserts . " records added), " . $errors . " failed.";
-    } else {
-        if ($message == "") {
-            $message = "Error: " . $title . " NOT restored - " .
-            $lines . " queries - " . $ok . " successful (" . $drops . "/" . $creates . " tables dropped/created, " . $inserts . " records added), " . $errors . " failed.";
-        }
+        $lines . " queries - " . $ok . 
+        " successful (" . $drops . "/" . $creates . " tables dropped/created, " . $inserts . " records added), " . 
+        $errors . " failed.";
+    } else if ($message == "") {
+        $message = "Error: " . $title . " NOT restored - " .
+        $lines . " queries - " . $ok . 
+        " successful (" . $drops . "/" . $creates . " tables dropped/created, " . $inserts . " records added), " . 
+        $errors . " failed.";
     }
     return $message;
 }
@@ -3762,7 +3768,19 @@ function create_ann($textid): string
 {
     global $tbpref;
     $ann = '';
-    $sql = 'select CASE WHEN Ti2WordCount>0 THEN Ti2WordCount ELSE 1 END as Code, CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE WoText END as TiText, Ti2Order, CASE WHEN Ti2WordCount > 0 THEN 0 ELSE 1 END as TiIsNotWord, WoID, WoTranslation from (' . $tbpref . 'textitems2 left join ' . $tbpref . 'words on (Ti2WoID = WoID) and (Ti2LgID = WoLgID)) where Ti2TxID = ' . $textid . ' order by Ti2Order asc, Ti2WordCount desc';
+    $sql = 
+    'SELECT 
+    CASE WHEN Ti2WordCount>0 THEN Ti2WordCount ELSE 1 END AS Code, 
+    CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE WoText END AS TiText, 
+    Ti2Order, 
+    CASE WHEN Ti2WordCount > 0 THEN 0 ELSE 1 END AS TiIsNotWord, 
+    WoID, WoTranslation 
+    FROM (
+        ' . $tbpref . 'textitems2 
+        LEFT JOIN ' . $tbpref . 'words ON (Ti2WoID = WoID) AND (Ti2LgID = WoLgID)
+    ) 
+    WHERE Ti2TxID = ' . $textid . ' 
+    ORDER BY Ti2Order asc, Ti2WordCount desc';
     $savenonterm = '';
     $saveterm = '';
     $savetrans = '';
@@ -3926,8 +3944,12 @@ function phonetic_reading($text, $lang)
 }
 
 
-// -------------------------------------------------------------
-
+/**
+ * Refresh a text.
+ * 
+ * @deprecated No longer used, incompatible with new database system.
+ * @since 1.6.25-fork Not compatible with the database
+ */
 function refreshText($word,$tid): string 
 {
     global $tbpref;
@@ -3939,14 +3961,16 @@ function refreshText($word,$tid): string
     if ($wordlc == '') { 
         return ''; 
     }
-    $sql = 'SELECT distinct TiSeID FROM ' . $tbpref . 'textitems WHERE TiIsNotWord = 0 and TiTextLC = ' . convert_string_to_sqlsyntax($wordlc) . ' and TiTxID = ' . $tid . ' order by TiSeID';
+    $sql = 
+    'SELECT distinct TiSeID FROM ' . $tbpref . 'textitems 
+    WHERE TiIsNotWord = 0 AND TiTextLC = ' . convert_string_to_sqlsyntax($wordlc) . ' AND TiTxID = ' . $tid . ' 
+    ORDER BY TiSeID';
     $res = do_mysqli_query($sql);
     $inlist = '(';
     while ($record = mysqli_fetch_assoc($res)) { 
         if ($inlist == '(') { 
             $inlist .= $record['TiSeID']; 
-        }
-        else {
+        } else {
             $inlist .= ',' . $record['TiSeID']; 
         }
     }
@@ -3954,9 +3978,14 @@ function refreshText($word,$tid): string
     if ($inlist == '(') { 
         return ''; 
     } else {
-        $inlist =  ' where TiSeID in ' . $inlist . ') '; 
+        $inlist =  ' WHERE TiSeID in ' . $inlist . ') '; 
     }
-    $sql = 'select TiWordCount as Code, TiOrder, TiIsNotWord, WoID from (' . $tbpref . 'textitems left join ' . $tbpref . 'words on (TiTextLC = WoTextLC) and (TiLgID = WoLgID)) ' . $inlist . ' order by TiOrder asc, TiWordCount desc';
+    $sql = 
+    'SELECT TiWordCount AS Code, TiOrder, TiIsNotWord, WoID 
+    FROM (' . $tbpref . 'textitems 
+        LEFT JOIN ' . $tbpref . 'words ON (TiTextLC = WoTextLC) AND (TiLgID = WoLgID)
+    ) ' . $inlist . ' 
+    ORDER BY TiOrder asc, TiWordCount desc';
 
     $res = do_mysqli_query($sql);        
 
@@ -3973,8 +4002,7 @@ function refreshText($word,$tid): string
         if ($hideuntil > 0 ) {
             if ($order <= $hideuntil ) {
                 $hidetag = "addClass('hide');"; 
-            }
-            else {
+            } else {
                 $hideuntil = -1;
                 $hidetag = "removeClass('hide');";
             }
@@ -3982,20 +4010,16 @@ function refreshText($word,$tid): string
 
         if ($notword != 0) {  // NOT A TERM
             $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
-        }  
-
-        else {   // A TERM
+        } else {   // A TERM
             if ($actcode > 1) {   // A MULTIWORD FOUND
                 if ($termex) {  // MULTIWORD FOUND - DISPLAY 
                     if ($hideuntil == -1) { $hideuntil = $order + ($actcode - 1) * 2; 
                     }
                     $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
-                }
-                else {  // MULTIWORD PLACEHOLDER - NO DISPLAY 
+                } else {  // MULTIWORD PLACEHOLDER - NO DISPLAY 
                     $out .= "$('#" . $spanid . "',context).addClass('hide');\n";
                 }  
             } // ($actcode > 1) -- A MULTIWORD FOUND
-
             else {  // ($actcode == 1)  -- A WORD FOUND
                 $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
             }  

@@ -6,8 +6,11 @@
  * 
  * Call: do_text_text.php?text=[textid]
  * 
- * @author LWT Project <lwt-project@hotmail.com>
- * @since  1.0.3
+ * @package Lwt
+ * @author  LWT Project <lwt-project@hotmail.com>
+ * @license Unlicense <http://unlicense.org/>
+ * @link    https://hugofara.github.io/lwt/docs/html/do__text__text_8php.html
+ * @since   1.0.3
  */
 
 require_once 'inc/session_utility.php';
@@ -17,10 +20,11 @@ require_once 'tts.php';
  * Get the record for this text in the database.
  * 
  * @param  string $textid ID of the text
- * @return array{TxLgID: int, TxTitle: string, TxAnnotatedText: string, TxPosition: int}|false|null Record corresponding to this text.
+ * 
+ * @return array{TxLgID: int, TxTitle: string, TxAnnotatedText: string, 
+ * TxPosition: int}|false|null Record corresponding to this text.
  * 
  * @global string $tbpref Table name prefix
- * @since  2.0.3-fork
  */
 function getTextData($textid)
 {
@@ -39,11 +43,13 @@ function getTextData($textid)
 /**
  * Return the settings relative to this language.
  * 
- * @param  int $langid Language ID as defined in the database.
- * @return array{LgName: string, LgDict1URI: string, LgDict2URI: string, LgGoogleTranslateURI: string,
- * LgTextSize: int, LgRemoveSpaces: int, LgRightToLeft: int}|false|null Record corresponding to this language.
+ * @param int $langid Language ID as defined in the database.
+ * 
+ * @return array{LgName: string, LgDict1URI: string, 
+ * LgDict2URI: string, LgGoogleTranslateURI: string, LgTextSize: int, 
+ * LgRemoveSpaces: int, LgRightToLeft: int}|false|null Record corresponding to this language.
+ * 
  * @global string $tbpref Table name prefix
- * @since  2.0.3-fork
  */
 function getLanguagesSettings($langid)
 {
@@ -64,18 +70,19 @@ function getLanguagesSettings($langid)
  *
  * @param int                   $actcode       Action code, > 1 for multiword
  * @param int                   $showAll       Show all words or not
- * @param int                   $hideuntil
+ * @param int                   $hideuntil     Unused
  * @param string                $spanid        ID for this span element
- * @param int                   $currcharcount Current number of caracters
- * @param array<string, string> $record Various data
+ * @param int                   $currcharcount Current number of characters
+ * @param array<string, string> $record        Various data
  * 
- * @return int New $hideuntil number
+ * @return int 0
  * 
- * @since 2.0.3-fork
+ * @since 2.2.1 Return 0 instead of a new value for $hideuntil
  */
 function echoTerm(
     $actcode, $showAll, $hideuntil, $spanid, $hidetag, $currcharcount, $record
 ): int {
+    $actcode = (int)$record['Code'];
     if ($actcode > 1) {   
         // A MULTIWORD FOUND
 
@@ -83,19 +90,16 @@ function echoTerm(
 
         // MULTIWORD FOUND - DISPLAY (Status 1-5, display)
         if (isset($record['WoID'])) {
-            if (!$showAll && $hideuntil == -1) {             
-                $hideuntil = (int)$record['TiOrder'] + ((int)$record['Code'] - 1) * 2;
-            }
 
             echo '<span id="' . $spanid . '" 
             class="' . $hidetag . ' click mword ' . 
             ($showAll ? 'mwsty' : 'wsty') .  
-            'order' . $record['TiOrder'] .
+            'order' . $record['Ti2Order'] .
             'word' . $record['WoID'] . 
             'status' . $record['WoStatus'] . 
             ' TERM' . strToClassName($record['TiTextLC']) . 
             ' data_pos="' . $currcharcount . '" 
-            data_order="' . $record['TiOrder'] . '" 
+            data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
             data_trans="' . tohtml(
                 repl_tab_nl($record['WoTranslation']) 
@@ -124,7 +128,7 @@ function echoTerm(
             ' status'. $record['WoStatus'] . 
             ' TERM' . strToClassName($record['TiTextLC']) . '" 
             data_pos="' . $currcharcount . '" 
-            data_order="' . $record['TiOrder'] . '" 
+            data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
             data_trans="' . tohtml(
                 repl_tab_nl(
@@ -145,7 +149,7 @@ function echoTerm(
             class="' . $hidetag . 
             ' click word wsty status0 TERM' . strToClassName($record['TiTextLC']) . '" 
             data_pos="' . $currcharcount . '" 
-            data_order="' . $record['TiOrder'] . '" 
+            data_order="' . $record['Ti2Order'] . '" 
             data_trans="" data_rom="" data_status="0" 
             data_wid="">' . tohtml($record['TiText']) . '</span>';
         } 
@@ -153,18 +157,20 @@ function echoTerm(
         //$titext = array('','','','','','','','','','','');
 
     }  // ($actcode == 1)  -- A WORD FOUND
-    return $hideuntil;
+    return 0;
 }
 
+
 /**
- * Process each word (can be punction, term, etc...)
+ * Process each word (can be punction, term, etc...). Caused laggy texts, replaced by wordParser.
  *
  * @param string[] $record        Record information
  * @param 0|1      $showAll       Show all words or not
  * @param int      $currcharcount Current number of caracters 
  * 
  * @return int New number of caracters
- * @since 2.0.3-fork
+ * 
+ * @deprecated Use sentenceParser and wordParser instead.
  */
 function wordProcessor($record, $showAll, $currcharcount): int
 {
@@ -172,29 +178,28 @@ function wordProcessor($record, $showAll, $currcharcount): int
     $cnt = 1;
     $sid = 0;
 
-    if ($sid != $record['TiSeID']) {
+    if ($sid != $record['Ti2SeID']) {
         if ($sid != 0) {
             echo '</span>';
         }
-        $sid = $record['TiSeID'];
+        $sid = $record['Ti2SeID'];
         echo '<span id="sent_', $sid, '">';
     }
     $actcode = (int)$record['Code'];
-    $spanid = 'ID-' . $record['TiOrder'] . '-' . $actcode;
+    $spanid = 'ID-' . $record['Ti2Order'] . '-' . $actcode;
 
     // Check if work should be hidden
     $hidetag = '';
     if ($hideuntil > 0) {
-        if ($record['TiOrder'] <= $hideuntil) {
+        if ($record['Ti2Order'] <= $hideuntil) {
             $hidetag = ' hide'; 
-        }
-        else {
+        } else {
             $hideuntil = -1;
             $hidetag = '';
         }
     }
 
-    if ($cnt < $record['TiOrder']) {
+    if ($cnt < $record['Ti2Order']) {
         echo '<span id="ID-' . $cnt++ . '-1"></span>';
     }
     // The current word is not a term
@@ -223,35 +228,99 @@ function wordProcessor($record, $showAll, $currcharcount): int
 }
 
 /**
+ * 
+ */
+function sentenceParser($sid, $old_sid) {
+    if ($sid == $old_sid) {
+        return $sid;
+    }
+    if ($sid != 0) {
+        echo '</span>';
+    }
+    $sid = $old_sid;
+    echo '<span id="sent_', $sid, '">';
+    return $sid;
+}
+
+/**
+ * Process each word (can be punction, term, etc...)
+ *
+ * @param string[] $record        Record information
+ * @param 0|1      $showAll       Show all words or not
+ * @param int      $currcharcount Current number of caracters 
+ * @param int      $cnt
+ * @param int      $sid           Sentence ID
+ * @param int      $hideuntil     Should the value be hidden or not
+ * 
+ * @return int New value for $hideuntil
+ */
+function wordParser($record, $showAll, $currcharcount, $hideuntil): int
+{
+    $actcode = (int)$record['Code'];
+    $spanid = 'ID-' . $record['Ti2Order'] . '-' . $actcode;
+
+    // Check if word should be hidden
+    $hidetag = '';
+    if ($hideuntil > 0) {
+        if ($record['Ti2Order'] <= $hideuntil) {
+            $hidetag = ' hide'; 
+        } else {
+            $hideuntil = -1;
+            $hidetag = '';
+        }
+    }
+
+    // The current word is not a term
+    if ($record['TiIsNotWord'] != 0) {
+        echo '<span id="' . $spanid . '" class="' .
+        $hidetag . '">' .
+        str_replace(
+            "¶",
+            '<br />',
+            tohtml($record['TiText'])
+        ) . '</span>';
+
+    } else {   
+        // $record['TiIsNotWord'] == 0  -- A TERM
+        if (isset($record['WoID']) && !$showAll && $hideuntil == -1) {
+            $hideuntil = (int)$record['Ti2Order'] + ($actcode - 1) * 2;
+        }
+        echoTerm(
+            $actcode, $showAll, $hideuntil, $spanid, $hidetag, $currcharcount, $record
+        );
+    } // $record['TiIsNotWord'] == 0  -- A TERM
+
+    return $hideuntil;
+}
+
+/**
  * Get all words and start the iterate over them.
  *
- * @param string $textid ID of the text 
- * @param 0|1 $showAll Show all words or not
+ * @param string $textid  ID of the text 
+ * @param 0|1    $showAll Show all words or not
  * 
  * @return void
  * 
  * @global string $tbpref Table name prefix
- *
- * @since 2.0.3-fork
  */
 function mainWordLoop($textid, $showAll): void
 {
     global $tbpref;
-    $currcharcount = 0;
     
     $sql = 
     'SELECT
      CASE WHEN `Ti2WordCount`>0 THEN Ti2WordCount ELSE 1 END as Code,
      CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE `WoText` END as TiText,
      CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN lower(Ti2Text) ELSE `WoTextLC` END as TiTextLC,
-     Ti2Order as TiOrder, Ti2SeID as TiSeID, 
+     Ti2Order, Ti2SeID, 
      CASE WHEN `Ti2WordCount`>0 THEN 0 ELSE 1 END as TiIsNotWord,
      CASE 
         WHEN CHAR_LENGTH(Ti2Text)>0 
         THEN CHAR_LENGTH(Ti2Text) 
         ELSE CHAR_LENGTH(`WoTextLC`) 
         END
-     AS TiTextLength, WoID, WoText, WoStatus, WoTranslation, WoRomanization
+     AS TiTextLength, 
+     WoID, WoText, WoStatus, WoTranslation, WoRomanization
      FROM (' 
        . $tbpref . 'textitems2
         LEFT JOIN ' . $tbpref . 'words
@@ -261,10 +330,24 @@ function mainWordLoop($textid, $showAll): void
      ORDER BY Ti2Order asc, Ti2WordCount desc';
     
     $res = do_mysqli_query($sql);
+    $currcharcount = 0;
+    $hideuntil = -1;
+    $cnt = 1;
+    $sid = 0;
 
     // Loop over words and punctuation
     while ($record = mysqli_fetch_assoc($res)) {
-        $currcharcount = wordProcessor($record, $showAll, $currcharcount);
+        $actcode = (int)$record['Code'];
+        $sid = sentenceParser($sid, $record['Ti2SeID']);
+        if ($cnt < $record['Ti2Order']) {
+            echo '<span id="ID-' . $cnt++ . '-1"></span>';
+        }
+        $hideuntil = wordParser($record, $showAll, $currcharcount, $hideuntil);
+        if ($actcode == 1) { 
+            $currcharcount += $record['TiTextLength']; 
+            $cnt++;
+        }
+
     } // while ($record = mysql_fetch_assoc($res))  -- MAIN LOOP
     
     mysqli_free_result($res);
@@ -273,12 +356,17 @@ function mainWordLoop($textid, $showAll): void
 
 /**
  * Prepare style for showing word status. Write a now STYLE object
+ * 
+ * @param int        $showLearning 1 to show learning translations
+ * @param int<1, 4>  $mode_trans   Annotation position
+ * @param int        $textsize     Text font size
+ * @param bool       $ann_exist    Does annotations exist for this text
  *
- * @since 2.0.3-fork
+ * @return void
  */
 function prepareStyle($showLearning, $mode_trans, $textsize, $ann_exists): void
 {
-    $displaystattrans = getSettingWithDefault('set-display-text-frame-term-translation');
+    $displaystattrans = (int)getSettingWithDefault('set-display-text-frame-term-translation');
     $pseudo_element = ($mode_trans<3) ? 'after' : 'before';
     $data_trans = $ann_exists ? 'data_ann' : 'data_trans';
     $stat_arr = array(1, 2, 3, 4, 5, 98, 99);
@@ -337,8 +425,10 @@ function prepareStyle($showLearning, $mode_trans, $textsize, $ann_exists): void
 
 /**
  * Print JavaScript-formatted content.
- *
- * @since 2.0.3-fork
+ * 
+ * @param array<string, mixed> Associative array of all global variables for JS
+ * 
+ * @return void
  */
 function do_text_javascript($var_array): void
 {
@@ -390,7 +480,6 @@ function do_text_text_content($textid, $only_body=true): void
     $title = $record['TxTitle'];
     $langid = $record['TxLgID'];
     $ann = $record['TxAnnotatedText'];
-    $ann_exists = strlen($ann) > 0;
     $pos = $record['TxPosition'];
     
     // Language settings
@@ -409,7 +498,7 @@ function do_text_text_content($textid, $only_body=true): void
     /**
      * @var int $mode_trans Annotation position between 0 and 4
      */
-    $mode_trans = getSettingWithDefault('set-text-frame-annotation-position');
+    $mode_trans = (int) getSettingWithDefault('set-text-frame-annotation-position');
     /**
      * @var bool $ruby Ruby annotations
      */
@@ -449,7 +538,7 @@ function do_text_text_content($textid, $only_body=true): void
         'POS' => $pos
     );
     do_text_javascript($var_array);
-    echo prepareStyle($showLearning, $mode_trans, $textsize, $ann_exists);
+    echo prepareStyle($showLearning, $mode_trans, $textsize, strlen($ann) > 0);
     ?>
 
     <div id="thetext" <?php echo ($rtlScript ? 'dir="rtl"' : '') ?>>
@@ -471,7 +560,7 @@ function do_text_text_content($textid, $only_body=true): void
 }
 
 // This code runs when calling this script, be careful!
-if (isset($_REQUEST['text'])) {
+if (false && isset($_REQUEST['text'])) {
     do_text_text_content($_REQUEST['text'], false);
 }
 ?>

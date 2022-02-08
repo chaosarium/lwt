@@ -162,13 +162,10 @@ function regenerateThemes()
  */
 $jsFiles = array(
     'src/js/audio_controller.js', 'src/js/third_party/countuptimer.js', 
-    'src/js/third_party/floating.js', 'src/js/jq_feedwizard.js', 
+    'src/js/jq_feedwizard.js', 
     'src/js/jq_pgm.js', 'src/js/pgm.js', 
     'src/js/translation_api.js', 'src/js/unloadformcheck.js',
     'src/js/third_party/sorttable.js', 'src/js/user_interactions.js', 
-
-    // Packages integrated by composer (dev mode)
-    'vendor/happyworm/jplayer/src/javascript/jplayer/jquery.jplayer.js'
 );
 
 /**
@@ -176,7 +173,7 @@ $jsFiles = array(
  */
 $cssFiles = array(
     'src/css/css_charts.css', 'src/css/feed_wizard.css', 'src/css/gallery.css', 
-    'src/css/jplayer.css', 'src/css/jquery-ui.css',
+    'src/css/jplayer.css', 'src/css/jquery-ui.css', 'src/css/jquery.tagit.css',
     'src/css/styles.css',
 
     // Packages integrated by composer (dev mode)

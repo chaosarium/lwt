@@ -4,7 +4,7 @@
  * \file
  * \brief Start Reading a text (frameset)
  * 
- * Call: do_text.php?start=[textid]
+ * Call: do_text.php?text=[textid]
  *      Create the main window when reading texts.
  * 
  * @package Lwt
@@ -20,49 +20,61 @@ require_once 'do_text_header.php';
 require_once 'do_text_text.php';
 
 /**
+ * Get text ID (if possible).
+ * 
+ * Text ID if first looked at int the 'text' parameter. If not found, then look at 'start'.
+ * 
+ * @return int|null Text ID or null
+ */
+function get_text_id() {
+    if (isset($_REQUEST['text']) && is_numeric($_REQUEST['text'])) {
+        return (int)$_REQUEST['text'];
+    }
+    if (isset($_REQUEST['start']) && is_numeric($_REQUEST['start'])) {
+        return (int)$_REQUEST['start'];
+    }
+    return null;
+}
+
+/**
  * Echo the page content for the mobile version of do_text.
  * 
+ * @param int    $textid Text ID
+ * @param string $audio  Audio URI
+ * 
  * @return void
+ * 
+ * @deprecated Use do_text_desktop_content instead.
+ * 
+ * @since 2.2.1 It also calls do_frameset_mobile_css and do_frameset_mobile_js
  */
-function do_text_mobile_content() {
-?>
-<div id="frame-h">
-    <iframe id="frame-h-2" 
-    src="do_text_header.php?text=<?php echo $_REQUEST['start']; ?>" 
-    scrolling="yes" name="h">
-    </iframe>
-</div>
-<div id="frame-ro">
-<iframe id="frame-ro-2" src="empty.html" scrolling="yes" name="ro"></iframe>
-</div>
-<div id="frame-l">
-    <iframe id="frame-l-2" 
-    src="do_text_text.php?text=<?php echo $_REQUEST['start']; ?>" scrolling="yes" name="l">
-    </iframe>
-</div>
-<div id="frame-ru">
-    <iframe id="frame-ru-2" src="empty.html" scrolling="yes" name="ru"></iframe>
-</div>
-
-<?php 
+function do_text_mobile_content($textid, $audio) {
+    do_frameset_mobile_css();
+    do_frameset_mobile_js($audio);
+    do_frameset_mobile_page_content(
+        "do_text_header.php?text=" . $textid, 
+        "do_text_text.php?text=" . $textid, 
+        true
+    );
 }
 
 /**
  * Echo the page content for the desktop version of do_text.
  * 
- * @param string|null Audio URI
+ * @param int         $textid Text ID
+ * @param string|null $audio  Audio URI
  * 
  * @return void
  */
-function do_text_desktop_content($audio) {
+function do_text_desktop_content($textid, $audio) {
 ?>
-<div style="width: 95%; height: 100%;" onclick="setTimeout(hideRightFrames, 1000);">
+<div style="width: 95%; height: 100%;">
     <div id="frame-h">
-        <?php do_text_header_content($_REQUEST['start'], true); ?>
+        <?php do_text_header_content($textid, true); ?>
     </div>
     <hr />
     <div id="frame-l">
-        <?php do_text_text_content($_REQUEST['start'], true); ?>
+        <?php do_text_text_content($textid, true); ?>
     </div>
 </div>
 <div id="frames-r" style="position: fixed; top: 0; right: -100%; width: 100%; height: 100%;" 
@@ -84,13 +96,16 @@ onclick="hideRightFrames();">
 /**
  * Echo the text page.
  * 
- * @param bool Set to true if you want the mobile version of the page.
+ * @param int  $textit Text ID
+ * @param bool $mobile Set to true if you want the mobile version of the page.
+ * 
+ * @since 2.2.1 The $mobile parameter is no longer required.
  * 
  * @return void
  * 
  * @global string $tbpref Database table prefix.
  */
-function do_text_page($mobile)
+function do_text_page($textid)
 {
     global $tbpref;
 
@@ -100,22 +115,20 @@ function do_text_page($mobile)
     $audio = get_first_value(
         'SELECT TxAudioURI AS value 
         FROM ' . $tbpref . 'texts 
-        WHERE TxID = ' . $_REQUEST['start']
+        WHERE TxID = ' . $textid
     );
     
-    if ($mobile && false) {
-        do_frameset_mobile_css();
-        do_frameset_mobile_js($audio);
-        do_text_mobile_content();
+    if (is_mobile()) {
+        do_text_mobile_content($textid, $audio);
     } else {
         // Not mobile
-        do_text_desktop_content($audio);
+        do_text_desktop_content($textid, $audio);
     }
     pageend();
 }
 
-if (isset($_REQUEST['start'])) {
-    do_text_page(is_mobile());
+if (get_text_id() !== null) {
+    do_text_page(get_text_id());
 } else {
     // Document not ready
     header("Location: edit_texts.php");

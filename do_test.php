@@ -8,6 +8,8 @@
  * Call: do_test.php?lang=[langid]
  * Call: do_test.php?text=[textid]
  * Call: do_test.php?selection=1  (SQL via $_SESSION['testsql'])
+ * Call: do_test.php?type=table for a table of words
+ * Call: do_test.php?type=[1-5] for a test of words.
  * 
  * @package Lwt
  * @author  LWT Project <lwt-project@hotmail.com>
@@ -94,25 +96,12 @@ function get_test_property()
  * @param string $property URL property
  * 
  * @return void
+ * 
+ * @deprecated Use do_frameset_mobile_page_content instead
  */
 function do_test_mobile_page_content($property) 
 {
-    ?>
-<div id="frame-h">
-    <iframe id="frame-h-2" 
-    src="do_test_header.php?<?php echo $property; ?>" scrolling="yes" name="h">
-    </iframe>
-</div>
-<div id="frame-ro">
-    <iframe id="frame-ro-2" src="empty.html" scrolling="yes" name="ro"></iframe>
-</div>
-<div id="frame-l">
-    <iframe  id="frame-l-2" src="empty.html" scrolling="yes" name="l"></iframe>
-</div>
-<div id="frame-ru">
-    <iframe id="frame-ru-2" src="empty.html" scrolling="yes" name="ru"></iframe>
-</div>
-        <?php 
+    do_frameset_mobile_page_content("do_test_header.php?" . $property, "empty.html", true);
 }
 
 /**
@@ -121,12 +110,14 @@ function do_test_mobile_page_content($property)
  * @param string $property URL property for HEADER
  * 
  * @return void
+ * 
+ * @deprecated Use do_test_desktop_page instead
  */
 function do_test_mobile_page($property) 
 {
     do_frameset_mobile_css();
     do_frameset_mobile_js();
-    do_test_mobile_page_content($property);
+    do_frameset_mobile_page_content("do_test_header.php?" . $property, "empty.html", true);
 }
 
 /**
@@ -140,7 +131,7 @@ function do_test_desktop_page($property)
 {
     $language = get_l2_language_name();
 ?>
-<div style="width: 95%; height: 100%;" onclick="setTimeout(hideRightFrames, 1000);">
+<div style="width: 95%; height: 100%;">
     <div id="frame-h">
         <?php
     start_test_header_page($language);
@@ -169,6 +160,14 @@ onclick="hideRightFrames();">
         </iframe>
     </div>
 </div>
+<audio id="success_sound">
+    <source src="<?php print_file_path("sounds/success.mp3") ?>" type="audio/mpeg" />
+    Your browser does not support audio element!
+</audio>
+<audio id="failure_sound">
+    <source src="<?php print_file_path("sounds/failure.mp3") ?>" type="audio/mpeg" />
+    Your browser does not support audio element!
+</audio>
 <?php
 }
 
@@ -176,15 +175,16 @@ onclick="hideRightFrames();">
  * Start the test page.
  * 
  * @param string $p Some property to add to the URL of do_test_test.php.
- * @param bool   $mobile Set to true to use mobile mode.
+ * 
+ * @since 2.2.1 The $mobile paramater is no longer required.
  * 
  * @return void
  */
-function do_test_page($p, $mobile)
+function do_test_page($p)
 {
     pagestart_nobody('Test');
     
-    if ($mobile && false) {
+    if (is_mobile()) {
         do_test_mobile_page($p);
     } else {
         do_test_desktop_page($p);
@@ -204,7 +204,7 @@ function do_test_page($p, $mobile)
 function try_start_test($p): void
 {
     if ($p != '') {
-        do_test_page($p, is_mobile());
+        do_test_page($p);
     } else {
         header("Location: edit_texts.php");
         exit();

@@ -603,24 +603,38 @@ img {
 	float: right;
 }
 
+/* Floating menu in docs/info.html */
 #floatdiv {
 	background:#333333;
 	border:1px solid #222222;
 	border-radius: 4px;
+	position: fixed;
+	top: 10px;
+	right: 10px; 
+	padding: 5px;
+	z-index: 2;
+	font-size: 10pt;
+	text-align:center;
 }
+
+#floatdiv > * {
+	display: block;
+	width: 75px;
+  }
 
 .inline {
 	display: inline;
 }
 
-.grayborder { /*border: 1pt solid #808080;*/
+.grayborder { 
+	/*border: 1pt solid #808080;*/
 	border: 1pt solid #8f8f8f;
 }
 
+/* Separate a footer section from the document */
 .graydotted {
 	margin-top: 30px;
 	padding-top: 5px;
-	/*border-top: 1px dotted #808080;*/
 	border-top: 1px dotted #8f8f8f;
 }
 
@@ -643,14 +657,6 @@ img {
 
 .width45pc {
 	width: 45%;
-}
-
-dd {
-	margin-top: 10pt;
-}
-
-dt {
-	margin-top: 10pt;
 }
 
 .annterm {
