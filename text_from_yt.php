@@ -1,3 +1,12 @@
+<?php 
+/**
+ * \file
+ * \brief From to import a file from YouTube.
+ * You need a personal YouTube API key.
+ */
+
+$YT_API_KEY = null;
+?>
 
 <tr>
 <td class="td1 right">YouTube Video Id:</td>

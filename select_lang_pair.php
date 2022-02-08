@@ -1,57 +1,31 @@
 <?php
 
-/**************************************************************
-"Learning with Texts" (LWT) is free and unencumbered software 
-released into the PUBLIC DOMAIN.
+/**
+ * \file
+ * \brief Display Language Pair Selection Window for Wizard
+ * 
+ * Call: select_lang_pair.php
+ * 
+ * @author https://sourceforge.net/projects/lwt/ LWT Project
+ * @since  1.5.11
+ */
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a
-compiled binary, for any purpose, commercial or non-commercial,
-and by any means.
+require_once 'inc/session_utility.php';
+require_once 'inc/langdefs.php' ;
 
-In jurisdictions that recognize copyright laws, the author or
-authors of this software dedicate any and all copyright
-interest in the software to the public domain. We make this
-dedication for the benefit of the public at large and to the 
-detriment of our heirs and successors. We intend this 
-dedication to be an overt act of relinquishment in perpetuity
-of all present and future rights to this software under
-copyright law.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-THE SOFTWARE.
-
-For more information, please refer to [http://unlicense.org/].
-***************************************************************/
-
-/**************************************************************
-Call: select_lang_pair.php
-Display Language Pair Selection Window for Wizard
-***************************************************************/
-
-require_once( 'settings.inc.php' );
-require_once( 'connect.inc.php' );
-require_once( 'dbutils.inc.php' );
-require_once( 'utilities.inc.php' );
-require_once( 'langdefs.inc.php' );
-
-function get_wizard_selectoptions($v) {
-	global $langDefs;
-	$r = "<option value=\"\"" . get_selected($v,"") . ">[Choose...]</option>";
-	$keys = array_keys($langDefs);
-	foreach ($keys as $item) {
-		$r .= "<option value=\"" . $item . "\"" . get_selected($v,$item) . ">" . $item . "</option>";
-	}
-	return $r;
+/// Returns a dropdown menu of the different languages
+function get_wizard_selectoptions($v): string 
+{
+    global $langDefs;
+    $r = "<option value=\"\"" . get_selected($v, "") . ">[Choose...]</option>";
+    $keys = array_keys($langDefs);
+    foreach ($keys as $item) {
+        $r .= "<option value=\"" . $item . "\"" . get_selected($v, $item) . ">" . $item . "</option>";
+    }
+    return $r;
 }
 
-pagestart_nobody('Language Settings Wizard','html{background-color: rgba(0, 0, 0, 0);}');
+pagestart_nobody('Language Settings Wizard', 'html{background-color: rgba(0, 0, 0, 0);}');
 
 $currentnativelanguage = getSetting('currentnativelanguage');
 
@@ -62,55 +36,57 @@ $currentnativelanguage = getSetting('currentnativelanguage');
 
 <?php echo "var LANGDEFS = " . json_encode($langDefs) . ";\n"; ?>
 
+/// Execute the wizard
 function wizard_go() {
-	var l1 = $('#l1').val();
-	var l2 = $('#l2').val();
-	if (l1 == '') {
-		alert ('Please choose your native language (L1)!');
-		return;
-	}
-	if (l2 == '') {
-		alert ('Please choose your language you want to read/study (L2)!');
-		return;
-	}
-	if (l2 == l1) {
-		alert ('L1 L2 Languages must not be equal!');
-		return;
-	}
-	var w = window.opener;
-	if (typeof w == 'undefined') {
-		alert ('Language setting cannot be set. Please try again.');
-		wizard_exit();
-	}
-	var context = w.document;
-	$('input[name="LgName"]',context).val(l2);	
-	$('input[name="LgDict1URI"]',context).val(
-		'glosbe_api.php?from=' + LANGDEFS[l2][0] + '&dest=' + 
-		LANGDEFS[l1][0] + '&phrase=###'
-		);	
-	$('input[name="LgGoogleTranslateURI"]',context).val(
-		'*http://translate.google.com/?ie=UTF-8&sl=' + 
-		LANGDEFS[l2][1] + '&tl=' + LANGDEFS[l1][1] + '&text=###'
-		);	
-	$('select[name="LgTextSize"]',context).val(LANGDEFS[l2][2] ? 200 : 150);	
-	$('input[name="LgRegexpSplitSentences"]',context).val(LANGDEFS[l2][4]);	
-	$('input[name="LgRegexpWordCharacters"]',context).val(LANGDEFS[l2][3]);	
-	$('select[name="LgSplitEachChar"]',context).val(LANGDEFS[l2][5] ? 1 : 0);	
-	$('select[name="LgRemoveSpaces"]',context).val(LANGDEFS[l2][6] ? 1 : 0);	
-	$('select[name="LgRightToLeft"]',context).val(LANGDEFS[l2][7] ? 1 : 0);	
-	wizard_exit();
+    var l1 = $('#l1').val();
+    var l2 = $('#l2').val();
+    if (l1 == '') {
+        alert ('Please choose your native language (L1)!');
+        return;
+    }
+    if (l2 == '') {
+        alert ('Please choose your language you want to read/study (L2)!');
+        return;
+    }
+    if (l2 == l1) {
+        alert ('L1 L2 Languages must not be equal!');
+        return;
+    }
+    var w = window.opener;
+    if (typeof w == 'undefined') {
+        alert ('Language setting cannot be set. Please try again.');
+        wizard_exit();
+    }
+    var context = w.document;
+    $('input[name="LgName"]',context).val(l2);    
+    $('input[name="LgDict1URI"]',context).val(
+        '*https://de.glosbe.com/' + LANGDEFS[l2][0] + '/' + 
+        LANGDEFS[l1][0] + '/###'
+        );    
+    $('input[name="LgGoogleTranslateURI"]',context).val(
+        '*http://translate.google.com/?ie=UTF-8&sl=' + 
+        LANGDEFS[l2][1] + '&tl=' + LANGDEFS[l1][1] + '&text=###'
+        );    
+    $('select[name="LgTextSize"]',context).val(LANGDEFS[l2][2] ? 200 : 150);    
+    $('input[name="LgRegexpSplitSentences"]',context).val(LANGDEFS[l2][4]);    
+    $('input[name="LgRegexpWordCharacters"]',context).val(LANGDEFS[l2][3]);    
+    $('select[name="LgSplitEachChar"]',context).val(LANGDEFS[l2][5] ? 1 : 0);    
+    $('select[name="LgRemoveSpaces"]',context).val(LANGDEFS[l2][6] ? 1 : 0);    
+    $('select[name="LgRightToLeft"]',context).val(LANGDEFS[l2][7] ? 1 : 0);    
+    wizard_exit();
 }
 
+/// Closes the wizard
 function wizard_exit() {
-	window.close();
+    window.close();
 }
 
 //]]>
 $(function(){
-$('.center').addClass('backlightyellow');
-bg=$('.center').css('background-color');
-$('body').css('background-color',bg);
-$('.center').removeClass('backlightyellow');
+    $('.center').addClass('backlightyellow');
+    bg=$('.center').css('background-color');
+    $('body').css('background-color',bg);
+    $('.center').removeClass('backlightyellow');
 });
 </script>
 
@@ -128,7 +104,7 @@ Language Settings Wizard
 <b>My Native language is:</b>
 <br />
 L1: 
-<select name="l1" id="l1" onchange= "{do_ajax_save_setting('currentnativelanguage',($('#l1').val()));}">
+<select name="l1" id="l1" onchange="{do_ajax_save_setting('currentnativelanguage',($('#l1').val()));}">
 <?php echo get_wizard_selectoptions($currentnativelanguage); ?>
 </select>
 </p>
