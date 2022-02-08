@@ -19,3 +19,4 @@ plugins
 .phpunit.result.cache
 
 composer.phar
+.vscode
