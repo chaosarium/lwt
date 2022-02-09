@@ -563,7 +563,7 @@ function do_test_test_javascript($count)
         );
     });
 
-    $(document).ready(apllyTTS);
+    // $(document).ready(applyTTS); tts breaks when definition is shown after clicking
 //]]>
 </script>
     <?php

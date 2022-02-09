@@ -460,7 +460,7 @@ function do_text_javascript($var_array): void
 
     $(document).ready(prepareTextInteractions);
     $(document).ready(goToLastPosition);
-    $(document).ready(apllyTTS);
+    $(document).ready(applyTTS);
     $(window).on('beforeunload', saveCurrentPosition);
     //]]>
 </script>
@@ -552,6 +552,7 @@ function do_text_text_content($textid, $only_body=true): void
         </p>
         <p style="font-size:<?php echo $textsize; ?>%;line-height: 1.4; margin-bottom: 300px;">&nbsp;</p>
     </div>
+    <!-- <script>applyTTS()</script> -->
     <?php 
     if (!$only_body) { 
         pageend(); 

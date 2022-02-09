@@ -15,6 +15,11 @@
  * 
  */
 
+/**
+ * Retrieve settings from settings database
+ * ttsjs_lang is the string representing a BCP 47 language tag
+ * ttsjs_rate a float value for speech rate
+*/
 $ttsjs_lang = getSettingWithDefault("set-ttsjs-lang");
 $ttsjs_rate = getSettingWithDefault("set-ttsjs-rate");
 
